@@ -8,6 +8,9 @@ AI エージェント（Claude Code）向けの運用指示。このファイル
 
 - コミット: [`docs/conventions/commit.md`](./docs/conventions/commit.md)
   - コミットメッセージは **英語**・Conventional Commits 準拠
+- ブランチ: [`docs/conventions/branch.md`](./docs/conventions/branch.md)
+- プルリクエスト: [`docs/conventions/pull-request.md`](./docs/conventions/pull-request.md)
+  - `main` への変更は PR 必須（直 push 禁止）。マージは **Squash**
 - 規約の索引: [`docs/README.md`](./docs/README.md)
 
 ## プロジェクト原則（constitution）

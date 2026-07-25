@@ -1,0 +1,23 @@
+# Claude Code の個人用ローカル設定（コミットしない）
+.claude/settings.local.json
+
+# 秘密情報（コミット禁止）
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+.env.development
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+credentials
+credentials.json
+
+# テンプレートは追跡する（秘密ではない）
+!.env.example
+!.env.sample
+!.env.template

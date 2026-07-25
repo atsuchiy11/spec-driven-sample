@@ -99,22 +99,12 @@
       "Edit(**/*.pem)",
       "Edit(**/*.key)",
 
-      "Write(.env)",
-      "Write(**/.env)",
-      "Write(.env.local)",
-      "Write(**/.env.local)",
-      "Write(.env.*.local)",
-      "Write(**/.env.*.local)",
-      "Write(**/secrets/**)",
-      "Write(secrets/**)",
-
       "Bash(cat .env:*)",
       "Bash(cat .env)",
       "Bash(cat **/.env:*)",
 
       "Read(~/.aws/**)",
-      "Edit(~/.aws/**)",
-      "Write(~/.aws/**)"
+      "Edit(~/.aws/**)"
     ]
   }
 }

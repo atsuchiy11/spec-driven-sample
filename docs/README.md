@@ -26,3 +26,7 @@
 - [コミットメッセージ規約](./conventions/commit.md) — Conventional Commits に準拠したコミットの書き方（英語）
 - [ブランチ命名規約](./conventions/branch.md) — ブランチの命名形式と type
 - [プルリクエスト規約](./conventions/pull-request.md) — PR の書き方・マージ戦略（Squash）・レビュー要件
+
+### guides
+
+- [headroom](./guides/headroom.md) — Claude Code のコンテキスト圧縮ツールのセットアップと運用（任意導入・個人環境）

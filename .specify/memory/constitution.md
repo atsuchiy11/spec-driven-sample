@@ -34,11 +34,10 @@
 [SECTION_2_CONTENT]
 <!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
 
-## 開発ワークフロー
+## [SECTION_3_NAME]
+<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
 
-- コミットメッセージは Conventional Commits に準拠する。詳細は [`docs/conventions/commit.md`](../../docs/conventions/commit.md) を参照。
-
-<!-- 他の開発ワークフロー規約（レビュープロセス、品質ゲート等）は、本体を書き起こす際に追記する -->
+[SECTION_3_CONTENT]
 <!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
 
 ## Governance

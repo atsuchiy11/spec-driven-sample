@@ -27,7 +27,7 @@
 
 ## API 表現（read / create / update の分離）
 
-契約（[contracts/main.tsp](./contracts/main.tsp)）ではライフサイクルで 3 モデルに分ける。これらは **oapi-codegen が OpenAPI から生成する DTO**（`internal/api` パッケージ）であり、内部の `domain.Todo`（entity）とは別型。変換は handler が担い、usecase は domain 型のみ扱う（生成 DTO 非依存）。
+契約（[contracts/main.tsp](./contracts/main.tsp)）ではライフサイクルで 3 モデルに分ける。これらは **oapi-codegen が OpenAPI から生成する DTO**（`src/internal/api` パッケージ）であり、内部の `domain.Todo`（entity）とは別型。変換は handler が担い、usecase は domain 型のみ扱う（生成 DTO 非依存）。
 
 - **TodoRead**: 全項目（`id`・タイムスタンプ含む）。読み取り応答。
 - **TodoCreate**: `title`（必須）・`description`（任意）のみ。`completed`・`id`・日時は持たない。
@@ -36,7 +36,7 @@
 ## 永続化マッピング（GORM）
 
 - entity `domain.Todo` が **永続化モデルを兼ねる**（GORM タグ付きの 1 struct を共有、変換ボイラープレートなし）。ただし `gorm.Model` / `gorm.DeletedAt` 等の GORM の**型**は domain に import せず、フィールドは `time.Time` / `string` 等の標準型に限る（タグ文字列のみ）。
-- repository の **port（interface `TodoRepository`）は `domain` が所有**（依存性逆転）。GORM 実装は `internal/infra/repository` に置き、GORM 依存をそこへ隔離、`gorm.ErrRecordNotFound` は `apperror.NotFound` に変換して上位へ返す。
+- repository の **port（interface `TodoRepository`）は `domain` が所有**（依存性逆転）。GORM 実装は `src/internal/infra/repository` に置き、GORM 依存をそこへ隔離、`gorm.ErrRecordNotFound` は `apperror.NotFound` に変換して上位へ返す。
 - テーブル `todos`。`id` は主キー（UUID、文字列 or `uuid` 型カラム）。
 - `created_at` / `updated_at` は GORM の規約フィールドで自動管理。
 - 起動時 `AutoMigrate(&domain.Todo{})` でスキーマ同期（[research.md](./research.md) 決定5）。

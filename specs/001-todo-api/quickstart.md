@@ -34,11 +34,11 @@ npx tsp compile .        # → contracts/openapi.yaml を生成
 # ツール導入（初回のみ、go.mod の tool ディレクティブに登録）
 go get -tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen
 
-# 生成（internal/api/generate.go の //go:generate を起動）
-go generate ./...        # → internal/api/todo.gen.go
+# 生成（src/internal/api/generate.go の //go:generate を起動）
+go generate ./...        # → src/internal/api/todo.gen.go
 ```
 
-- 生成物 `internal/api/*.gen.go` はコミット済みのため、**通常のビルドでは再生成不要**。契約（`main.tsp` → `openapi.yaml`）を変更したときだけ再実行する。
+- 生成物 `src/internal/api/*.gen.go` はコミット済みのため、**通常のビルドでは再生成不要**。契約（`main.tsp` → `openapi.yaml`）を変更したときだけ再実行する。
 - Node は不要（oapi-codegen は Go tool）。
 
 ## 1. セットアップ（API 起動）
@@ -52,7 +52,7 @@ export API_KEY=dev-secret-key
 export DATABASE_DSN='postgres://todo:todo@localhost:5432/todo?sslmode=disable'
 
 # API サーバ起動（起動時に AutoMigrate でスキーマ同期）
-go run ./cmd/api
+go run ./src/cmd/api
 # → http://localhost:8080 で待受
 ```
 

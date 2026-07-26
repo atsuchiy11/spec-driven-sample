@@ -67,7 +67,7 @@ Web フレームワークは **Gin で確定**。Go 1.22 の `net/http.ServeMux`
 - **Decision**: `openapi.yaml` から `github.com/oapi-codegen/oapi-codegen/v2` で Go の HTTP 境界コードを生成する。生成モードは **strict-server + Gin**（`gin-server` + `strict-server` + `models` を併記）。handler が生成 `StrictServerInterface` を実装し usecase を呼ぶ。
 - **Rationale**: 契約（OpenAPI = TypeSpec 由来）から handler インターフェース・DTO・バインドを導出し、契約と実装のドリフトを構造的に排除。手書き DTO/バインドの重複を削減。strict モードは req/res が型付きで、契約準拠がコンパイル時に強制される。
 - **Alternatives**: 手書き handler + DTO（契約と二重管理でドリフト）、ogen（生成物が重厚・学習コスト）、swaggo（コード→OpenAPI の逆方向で SSoT が実装側になる）。
-- **Trade-off・歯止め**: 生成コードは go-playground/validator を使わず OpenAPI スキーマ制約を実行時強制しない → 意味的 field 検証（`errors[]`）は usecase のドメイン検証で補完（後述）。歯止め: 生成物 `internal/api/*.gen.go` をコミット（Node/生成器なしでビルド可）、生成器は go tool（Node 非依存）、usecase は生成 DTO に依存させない、エラー変換は 1 箇所に集約。
+- **Trade-off・歯止め**: 生成コードは go-playground/validator を使わず OpenAPI スキーマ制約を実行時強制しない → 意味的 field 検証（`errors[]`）は usecase のドメイン検証で補完（後述）。歯止め: 生成物 `src/internal/api/*.gen.go` をコミット（Node/生成器なしでビルド可）、生成器は go tool（Node 非依存）、usecase は生成 DTO に依存させない、エラー変換は 1 箇所に集約。
 
 ### 決定8: アーキテクチャ（クリーンアーキ寄り / 依存性逆転）
 - **Decision**: handler → usecase → repository の層構成で、repository の interface（port）を **domain/usecase 側が所有**する（依存性逆転）。GORM 実装は最も外側の `infra/repository` に隔離。usecase は単一 `TodoUsecase` struct に CRUD を束ねる。

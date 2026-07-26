@@ -18,34 +18,34 @@
 
 ## ディレクトリレイアウト
 
-Go 慣習（`cmd/`=エントリポイント、`internal/`=外部 import 不可の非公開実装）準拠。リソースが Todo 単一のため、クリーンアーキ寄りの層をパッケージで表現する。
+実装コードは全て `src/` 配下に置く。その中を Go 慣習（`src/cmd/`=エントリポイント、`src/internal/`=外部 import 不可の非公開実装）準拠で構成する。リソースが Todo 単一のため、クリーンアーキ寄りの層をパッケージで表現する。
 
 ```text
-cmd/
-└── api/
-    └── main.go                     # 唯一の可動部: 設定読込→DI 配線→ルーティング→起動
-
-internal/
-├── config/
-│   └── config.go                   # env を型付き struct へ。起動時一括読込&検証（fail-fast）
-├── domain/
-│   ├── todo.go                     # エンティティ Todo（GORM タグ付き。GORM の「型」は import しない）
-│   └── repository.go               # repository port（interface TodoRepository）を domain が所有
-├── usecase/
-│   └── todo_usecase.go             # TodoUsecase。port 依存、業務ルール（completed 固定/更新、PUT 全置換）+ 意味的バリデーション
-├── infra/
-│   └── repository/
-│       └── gorm_todo_repository.go # GORM 実装（port を満たす）。*gorm.DB をここに閉じ込める
-├── handler/
-│   └── todo_handler.go             # 生成 StrictServerInterface を実装。DTO↔domain 変換、usecase 呼出
-├── api/
-│   ├── cfg.yaml                    # oapi-codegen 設定（gin-server + strict-server + models）
-│   ├── generate.go                 # //go:generate ディレクティブ
-│   └── todo.gen.go                 # oapi-codegen 生成物（ServerInterface/StrictServerInterface/DTO、コミット対象）
-├── middleware/
-│   └── auth.go                     # Authorization: Bearer 検証
-└── apperror/
-    └── errors.go                   # ドメインエラー型 + problem+json レンダラ（NotFound/Validation/Unauthorized）
+src/
+├── cmd/
+│   └── api/
+│       └── main.go                 # 唯一の可動部: 設定読込→DI 配線→ルーティング→起動
+└── internal/
+    ├── config/
+    │   └── config.go               # env を型付き struct へ。起動時一括読込&検証（fail-fast）
+    ├── domain/
+    │   ├── todo.go                 # エンティティ Todo（GORM タグ付き。GORM の「型」は import しない）
+    │   └── repository.go           # repository port（interface TodoRepository）を domain が所有
+    ├── usecase/
+    │   └── todo_usecase.go         # TodoUsecase。port 依存、業務ルール（completed 固定/更新、PUT 全置換）+ 意味的バリデーション
+    ├── infra/
+    │   └── repository/
+    │       └── gorm_todo_repository.go # GORM 実装（port を満たす）。*gorm.DB をここに閉じ込める
+    ├── handler/
+    │   └── todo_handler.go         # 生成 StrictServerInterface を実装。DTO↔domain 変換、usecase 呼出
+    ├── api/
+    │   ├── cfg.yaml                # oapi-codegen 設定（gin-server + strict-server + models）
+    │   ├── generate.go             # //go:generate ディレクティブ
+    │   └── todo.gen.go             # oapi-codegen 生成物（ServerInterface/StrictServerInterface/DTO、コミット対象）
+    ├── middleware/
+    │   └── auth.go                 # Authorization: Bearer 検証
+    └── apperror/
+        └── errors.go               # ドメインエラー型 + problem+json レンダラ（NotFound/Validation/Unauthorized）
 
 tests/
 └── integration/                    # httptest でハンドラ+ミドルウェア。testcontainers で PostgreSQL
@@ -59,7 +59,7 @@ docker-compose.yml                  # PostgreSQL 16
 - `pkg/` は作らない（外部再利用予定なし → YAGNI）。
 - 単体テストは各パッケージ内 `*_test.go` 同居、DB を伴う結合のみ `tests/integration/` に集約。
 - 集約エラー変換は `middleware/error.go` を廃し、`apperror` の単一レンダラ + oapi-codegen の strict オプション（`ResponseErrorHandlerFunc` / `GinServerOptions.ErrorHandler`）に集約する（後述「エラーハンドリング」）。
-- `internal/api/` は生成物専用。手書きしない（契約変更→再生成）。
+- `src/internal/api/` は生成物専用。手書きしない（契約変更→再生成）。
 
 出典: buanacoding「Structuring Go Projects 2025」、glukhov「Go Project Structure」。
 
@@ -136,7 +136,7 @@ func main() {
 
 ## エラーハンドリング（RFC 7807 problem+json に統一）
 
-**ドメインエラーを `internal/apperror` に定義**し、**単一のレンダラ `apperror.RenderGin` 1 箇所**で HTTP ステータス + **RFC 7807 `application/problem+json`** へマッピングする。この形式は API 契約（[contracts/main.tsp](./contracts/main.tsp) の `Problem` モデル）を SSoT とし、実装はそれに合わせる。
+**ドメインエラーを `src/internal/apperror` に定義**し、**単一のレンダラ `apperror.RenderGin` 1 箇所**で HTTP ステータス + **RFC 7807 `application/problem+json`** へマッピングする。この形式は API 契約（[contracts/main.tsp](./contracts/main.tsp) の `Problem` モデル）を SSoT とし、実装はそれに合わせる。
 
 **成功=型付き / 失敗=中央集約**の方針を採る:
 
@@ -217,7 +217,7 @@ func statusFor(k apperror.Kind) int {
 **推奨**: `Select("title","description","completed","updated_at").Updates(...)` で対象カラム明示列挙（`created_at` は除外）。`RowsAffected == 0` で対象不在 → `apperror.NotFound`。この実装は `infra/repository` の GORM 実装内に置く（GORM 型はここに閉じる）。
 
 ```go
-// internal/infra/repository/gorm_todo_repository.go
+// src/internal/infra/repository/gorm_todo_repository.go
 func (r *gormTodoRepo) Update(ctx context.Context, t *domain.Todo) error {
     res := r.db.WithContext(ctx).
         Model(&domain.Todo{}).

@@ -11,6 +11,12 @@ version: '3'
 vars:
   API_ENTRYPOINT: ./src/cmd/api
 
+# TypeSpec 契約のタスクを取り込む。ルートから `task contract:<name>`（例: task contract:build）で実行できる。
+includes:
+  contract:
+    taskfile: ./specs/001-todo-api/contracts/Taskfile.yml
+    dir: ./specs/001-todo-api/contracts
+
 tasks:
   default:
     desc: タスク一覧を表示
@@ -27,12 +33,6 @@ tasks:
     desc: PostgreSQL を停止・破棄
     cmds:
       - docker compose down
-
-  contract:
-    desc: TypeSpec を openapi.yaml へコンパイル（要 Node、contracts 配下）
-    dir: contracts
-    cmds:
-      - npx tsp compile .
 
   generate:
     desc: oapi-codegen で HTTP 境界コードを生成（go generate）

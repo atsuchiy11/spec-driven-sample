@@ -1,0 +1,590 @@
+openapi: 3.0.0
+info:
+  title: Todo Management API
+  description: |-
+    TODO 管理 REST API。
+    全エンドポイントは `Authorization: Bearer <key>` 認証が必須。
+    仕様: specs/001-todo-api/spec.md
+  version: 0.0.0
+tags:
+  - name: Todos
+paths:
+  /todos:
+    post:
+      operationId: Todos_create
+      summary: Todo を作成
+      description: Todo を作成する。`completed` はリクエストにあっても無視され false になる。
+      parameters: []
+      responses:
+        '201':
+          description: 201 Created。Location ヘッダと本体を返す。
+          headers:
+            Location:
+              required: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoRead'
+        '400':
+          description: |-
+            RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+            `@error` によりエミッタは失敗レスポンスとして扱う。
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                required:
+                  - title
+                  - status
+                properties:
+                  type:
+                    type: string
+                    description: 問題の種類を示す URI。既定は about:blank。
+                    default: about:blank
+                  title:
+                    type: string
+                    description: 問題種別の短い要約。
+                  status:
+                    type: integer
+                    format: int32
+                    description: HTTP ステータスコード。
+                  detail:
+                    type: string
+                    description: この発生に固有の詳細説明。
+                  instance:
+                    type: string
+                    description: 発生箇所を示す URI 参照（任意）。
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FieldError'
+                    description: 項目単位のバリデーションエラー（400 で使用）。
+                description: |-
+                  RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+                  `@error` によりエミッタは失敗レスポンスとして扱う。
+        '401':
+          description: |-
+            RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+            `@error` によりエミッタは失敗レスポンスとして扱う。
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                required:
+                  - title
+                  - status
+                properties:
+                  type:
+                    type: string
+                    description: 問題の種類を示す URI。既定は about:blank。
+                    default: about:blank
+                  title:
+                    type: string
+                    description: 問題種別の短い要約。
+                  status:
+                    type: integer
+                    format: int32
+                    description: HTTP ステータスコード。
+                  detail:
+                    type: string
+                    description: この発生に固有の詳細説明。
+                  instance:
+                    type: string
+                    description: 発生箇所を示す URI 参照（任意）。
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FieldError'
+                    description: 項目単位のバリデーションエラー（400 で使用）。
+                description: |-
+                  RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+                  `@error` によりエミッタは失敗レスポンスとして扱う。
+      tags:
+        - Todos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoCreate'
+    get:
+      operationId: Todos_list
+      summary: Todo 一覧を取得
+      description: Todo を全件取得する。created_at の降順で返す。
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TodoRead'
+        '401':
+          description: |-
+            RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+            `@error` によりエミッタは失敗レスポンスとして扱う。
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                required:
+                  - title
+                  - status
+                properties:
+                  type:
+                    type: string
+                    description: 問題の種類を示す URI。既定は about:blank。
+                    default: about:blank
+                  title:
+                    type: string
+                    description: 問題種別の短い要約。
+                  status:
+                    type: integer
+                    format: int32
+                    description: HTTP ステータスコード。
+                  detail:
+                    type: string
+                    description: この発生に固有の詳細説明。
+                  instance:
+                    type: string
+                    description: 発生箇所を示す URI 参照（任意）。
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FieldError'
+                    description: 項目単位のバリデーションエラー（400 で使用）。
+                description: |-
+                  RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+                  `@error` によりエミッタは失敗レスポンスとして扱う。
+      tags:
+        - Todos
+  /todos/{id}:
+    get:
+      operationId: Todos_read
+      summary: Todo を取得
+      description: 単一の Todo を取得する。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoRead'
+        '401':
+          description: |-
+            RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+            `@error` によりエミッタは失敗レスポンスとして扱う。
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                required:
+                  - title
+                  - status
+                properties:
+                  type:
+                    type: string
+                    description: 問題の種類を示す URI。既定は about:blank。
+                    default: about:blank
+                  title:
+                    type: string
+                    description: 問題種別の短い要約。
+                  status:
+                    type: integer
+                    format: int32
+                    description: HTTP ステータスコード。
+                  detail:
+                    type: string
+                    description: この発生に固有の詳細説明。
+                  instance:
+                    type: string
+                    description: 発生箇所を示す URI 参照（任意）。
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FieldError'
+                    description: 項目単位のバリデーションエラー（400 で使用）。
+                description: |-
+                  RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+                  `@error` によりエミッタは失敗レスポンスとして扱う。
+        '404':
+          description: |-
+            RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+            `@error` によりエミッタは失敗レスポンスとして扱う。
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                required:
+                  - title
+                  - status
+                properties:
+                  type:
+                    type: string
+                    description: 問題の種類を示す URI。既定は about:blank。
+                    default: about:blank
+                  title:
+                    type: string
+                    description: 問題種別の短い要約。
+                  status:
+                    type: integer
+                    format: int32
+                    description: HTTP ステータスコード。
+                  detail:
+                    type: string
+                    description: この発生に固有の詳細説明。
+                  instance:
+                    type: string
+                    description: 発生箇所を示す URI 参照（任意）。
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FieldError'
+                    description: 項目単位のバリデーションエラー（400 で使用）。
+                description: |-
+                  RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+                  `@error` によりエミッタは失敗レスポンスとして扱う。
+      tags:
+        - Todos
+    put:
+      operationId: Todos_replace
+      summary: Todo を置換
+      description: Todo を全項目置換する。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoRead'
+        '400':
+          description: |-
+            RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+            `@error` によりエミッタは失敗レスポンスとして扱う。
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                required:
+                  - title
+                  - status
+                properties:
+                  type:
+                    type: string
+                    description: 問題の種類を示す URI。既定は about:blank。
+                    default: about:blank
+                  title:
+                    type: string
+                    description: 問題種別の短い要約。
+                  status:
+                    type: integer
+                    format: int32
+                    description: HTTP ステータスコード。
+                  detail:
+                    type: string
+                    description: この発生に固有の詳細説明。
+                  instance:
+                    type: string
+                    description: 発生箇所を示す URI 参照（任意）。
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FieldError'
+                    description: 項目単位のバリデーションエラー（400 で使用）。
+                description: |-
+                  RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+                  `@error` によりエミッタは失敗レスポンスとして扱う。
+        '401':
+          description: |-
+            RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+            `@error` によりエミッタは失敗レスポンスとして扱う。
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                required:
+                  - title
+                  - status
+                properties:
+                  type:
+                    type: string
+                    description: 問題の種類を示す URI。既定は about:blank。
+                    default: about:blank
+                  title:
+                    type: string
+                    description: 問題種別の短い要約。
+                  status:
+                    type: integer
+                    format: int32
+                    description: HTTP ステータスコード。
+                  detail:
+                    type: string
+                    description: この発生に固有の詳細説明。
+                  instance:
+                    type: string
+                    description: 発生箇所を示す URI 参照（任意）。
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FieldError'
+                    description: 項目単位のバリデーションエラー（400 で使用）。
+                description: |-
+                  RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+                  `@error` によりエミッタは失敗レスポンスとして扱う。
+        '404':
+          description: |-
+            RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+            `@error` によりエミッタは失敗レスポンスとして扱う。
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                required:
+                  - title
+                  - status
+                properties:
+                  type:
+                    type: string
+                    description: 問題の種類を示す URI。既定は about:blank。
+                    default: about:blank
+                  title:
+                    type: string
+                    description: 問題種別の短い要約。
+                  status:
+                    type: integer
+                    format: int32
+                    description: HTTP ステータスコード。
+                  detail:
+                    type: string
+                    description: この発生に固有の詳細説明。
+                  instance:
+                    type: string
+                    description: 発生箇所を示す URI 参照（任意）。
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FieldError'
+                    description: 項目単位のバリデーションエラー（400 で使用）。
+                description: |-
+                  RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+                  `@error` によりエミッタは失敗レスポンスとして扱う。
+      tags:
+        - Todos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoUpdate'
+    delete:
+      operationId: Todos_delete
+      summary: Todo を削除
+      description: Todo を削除する。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: 204 No Content（削除成功）。
+        '401':
+          description: |-
+            RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+            `@error` によりエミッタは失敗レスポンスとして扱う。
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                required:
+                  - title
+                  - status
+                properties:
+                  type:
+                    type: string
+                    description: 問題の種類を示す URI。既定は about:blank。
+                    default: about:blank
+                  title:
+                    type: string
+                    description: 問題種別の短い要約。
+                  status:
+                    type: integer
+                    format: int32
+                    description: HTTP ステータスコード。
+                  detail:
+                    type: string
+                    description: この発生に固有の詳細説明。
+                  instance:
+                    type: string
+                    description: 発生箇所を示す URI 参照（任意）。
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FieldError'
+                    description: 項目単位のバリデーションエラー（400 で使用）。
+                description: |-
+                  RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+                  `@error` によりエミッタは失敗レスポンスとして扱う。
+        '404':
+          description: |-
+            RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+            `@error` によりエミッタは失敗レスポンスとして扱う。
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                required:
+                  - title
+                  - status
+                properties:
+                  type:
+                    type: string
+                    description: 問題の種類を示す URI。既定は about:blank。
+                    default: about:blank
+                  title:
+                    type: string
+                    description: 問題種別の短い要約。
+                  status:
+                    type: integer
+                    format: int32
+                    description: HTTP ステータスコード。
+                  detail:
+                    type: string
+                    description: この発生に固有の詳細説明。
+                  instance:
+                    type: string
+                    description: 発生箇所を示す URI 参照（任意）。
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FieldError'
+                    description: 項目単位のバリデーションエラー（400 で使用）。
+                description: |-
+                  RFC 7807 準拠のエラー本体。Status はステータスコードのリテラル型。
+                  `@error` によりエミッタは失敗レスポンスとして扱う。
+      tags:
+        - Todos
+security:
+  - BearerAuth: []
+components:
+  schemas:
+    FieldError:
+      type: object
+      required:
+        - field
+        - code
+        - message
+      properties:
+        field:
+          type: string
+          description: '不正だった項目名（例: "title"）。'
+        code:
+          type: string
+          description: '機械可読なエラーコード（例: "required" / "too_long" / "blank"）。'
+        message:
+          type: string
+          description: '人間可読な理由（例: "title must not be blank"）。'
+      description: バリデーション失敗の項目単位詳細。
+    TodoCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 256
+          pattern: \S
+        description:
+          type: string
+          maxLength: 1024
+          default: ''
+      description: |-
+        作成リクエスト（POST /todos）。
+        `completed` は意図的に含めない → 送られても無視され、サーバは常に false を設定。
+        id / created_at / updated_at はサーバ採番のため存在しない。
+    TodoRead:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - completed
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: サーバ採番の UUID v4（読み取り専用）。
+        title:
+          type: string
+          minLength: 1
+          maxLength: 256
+          pattern: \S
+          description: タイトル。1〜256 文字、空白のみは不可。
+        description:
+          type: string
+          maxLength: 1024
+          description: 説明（任意）。最大 1024 文字。既定は空文字。
+        completed:
+          type: boolean
+          description: 完了フラグ。作成時は常に false。
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時（サーバ管理・読み取り専用）。
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時（サーバ管理・読み取り専用）。
+      description: 読み取り時の Todo 表現（id / タイムスタンプを含む完全形）。
+    TodoUpdate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 256
+          pattern: \S
+        description:
+          type: string
+          maxLength: 1024
+          default: ''
+        completed:
+          type: boolean
+          description: 未指定時は false として置換。
+          default: false
+      description: |-
+        全項目置換リクエスト（PUT /todos/{id}）。
+        `completed` は更新でのみ変更可能。id / タイムスタンプは含めない。
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: Bearer
+servers:
+  - url: http://localhost:8080
+    description: ローカル開発
+    variables: {}

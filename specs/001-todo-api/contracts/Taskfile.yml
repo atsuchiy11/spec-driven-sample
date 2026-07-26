@@ -1,0 +1,32 @@
+# Taskfile — TypeSpec 契約定義のタスク（https://taskfile.dev）
+#
+# パッケージマネージャは pnpm を使う。PATH に無い場合は Node 同梱の corepack 経由で実行する。
+# ルートの Taskfile から `includes` で取り込むため、リポジトリルートからは
+# `task contract:<name>`（例: task contract:build）で実行できる。
+version: '3'
+
+tasks:
+  default:
+    desc: TypeSpec をコンパイル（build のエイリアス）
+    cmds:
+      - task: build
+
+  install:
+    desc: TypeSpec ツールチェーンの依存を導入（pnpm install）
+    cmds:
+      - corepack pnpm install
+
+  build:
+    desc: main.tsp を openapi.yaml へコンパイル
+    cmds:
+      - corepack pnpm exec tsp compile .
+
+  watch:
+    desc: 変更を監視して継続コンパイル
+    cmds:
+      - corepack pnpm exec tsp compile . --watch
+
+  clean:
+    desc: 生成物 openapi.yaml を削除
+    cmds:
+      - rm -f openapi.yaml

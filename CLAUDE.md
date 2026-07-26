@@ -11,6 +11,8 @@ AI エージェント（Claude Code）向けの運用指示。このファイル
 - ブランチ: [`docs/conventions/branch.md`](./docs/conventions/branch.md)
 - プルリクエスト: [`docs/conventions/pull-request.md`](./docs/conventions/pull-request.md)
   - `main` への変更は PR 必須（直 push 禁止）。マージは **Squash**
+- タスクランナー: [`docs/conventions/task.md`](./docs/conventions/task.md)
+  - 開発タスクは **Taskfile** に統一。生コマンドを直接叩かず `task <name>` を使う
 - 規約の索引: [`docs/README.md`](./docs/README.md)
 
 ## プロジェクト原則（constitution）

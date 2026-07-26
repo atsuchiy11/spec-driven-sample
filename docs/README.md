@@ -26,6 +26,7 @@
 - [コミットメッセージ規約](./conventions/commit.md) — Conventional Commits に準拠したコミットの書き方（英語）
 - [ブランチ命名規約](./conventions/branch.md) — ブランチの命名形式と type
 - [プルリクエスト規約](./conventions/pull-request.md) — PR の書き方・マージ戦略（Squash）・レビュー要件
+- [タスクランナー規約](./conventions/task.md) — Taskfile による開発タスクの統一（生コマンドを直接叩かない）
 
 ### guides
 

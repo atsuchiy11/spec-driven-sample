@@ -1,0 +1,72 @@
+# Taskfile — タスクランナー定義（https://taskfile.dev）
+#
+# 導入: brew install go-task / go install github.com/go-task/task/v3/cmd/task@latest
+# 一覧: task --list
+#
+# 注記: 実装コードは implement フェーズで生成予定のため、
+#       各タスクは設計ドキュメント（quickstart.md / contracts/README.md）の
+#       目標レイアウト（src/cmd/api・contracts/・docker-compose.yml をルート直下）を前提とする。
+version: '3'
+
+vars:
+  API_ENTRYPOINT: ./src/cmd/api
+
+tasks:
+  default:
+    desc: タスク一覧を表示
+    cmds:
+      - task --list
+    silent: true
+
+  up:
+    desc: PostgreSQL を起動（docker compose）
+    cmds:
+      - docker compose up -d
+
+  down:
+    desc: PostgreSQL を停止・破棄
+    cmds:
+      - docker compose down
+
+  contract:
+    desc: TypeSpec を openapi.yaml へコンパイル（要 Node、contracts 配下）
+    dir: contracts
+    cmds:
+      - npx tsp compile .
+
+  generate:
+    desc: oapi-codegen で HTTP 境界コードを生成（go generate）
+    cmds:
+      - go generate ./...
+
+  build:
+    desc: 全パッケージをビルド
+    cmds:
+      - go build ./...
+
+  run:
+    desc: API サーバを起動（起動時 AutoMigrate）
+    cmds:
+      - go run {{.API_ENTRYPOINT}}
+
+  test:
+    desc: 全テストを実行
+    cmds:
+      - go test ./...
+
+  fmt:
+    desc: gofmt でフォーマット
+    cmds:
+      - go fmt ./...
+
+  vet:
+    desc: go vet で静的解析
+    cmds:
+      - go vet ./...
+
+  check:
+    desc: fmt・vet・test を一括実行（CI 想定）
+    cmds:
+      - task: fmt
+      - task: vet
+      - task: test

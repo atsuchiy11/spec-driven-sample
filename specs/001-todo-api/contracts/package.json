@@ -1,0 +1,15 @@
+{
+  "name": "todo-api-contracts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TODO 管理 API の TypeSpec 定義。tsp compile で openapi.yaml を生成する。",
+  "scripts": {
+    "build": "tsp compile .",
+    "watch": "tsp compile . --watch"
+  },
+  "dependencies": {
+    "@typespec/compiler": "latest",
+    "@typespec/http": "latest",
+    "@typespec/openapi3": "latest"
+  }
+}

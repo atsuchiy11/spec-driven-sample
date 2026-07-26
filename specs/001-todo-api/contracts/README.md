@@ -22,13 +22,13 @@ npx tsp compile .   # → openapi.yaml を生成
 
 `openapi.yaml` を入力に、oapi-codegen で Go の HTTP 境界コード（handler I/F・DTO・バインド）を生成する。
 
-- 生成設定: `internal/api/cfg.yaml`（`gin-server` + `strict-server` + `models`）。
+- 生成設定: `src/internal/api/cfg.yaml`（`gin-server` + `strict-server` + `models`）。
 - 生成器は go.mod の `tool` ディレクティブで固定（`go get -tool github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen`）。Node は不要（TypeSpec/Bruno とは別系統）。
-- 実行: リポジトリルートで `go generate ./...`（`internal/api/generate.go` の `//go:generate` が起動）。
-- 生成物 `internal/api/*.gen.go` は**コミット対象**（生成器なしでも Go ビルド可）。
+- 実行: リポジトリルートで `go generate ./...`（`src/internal/api/generate.go` の `//go:generate` が起動）。
+- 生成物 `src/internal/api/*.gen.go` は**コミット対象**（生成器なしでも Go ビルド可）。
 
 ```text
-main.tsp ──tsp compile──▶ openapi.yaml ──go generate/oapi-codegen──▶ internal/api/todo.gen.go
+main.tsp ──tsp compile──▶ openapi.yaml ──go generate/oapi-codegen──▶ src/internal/api/todo.gen.go
 ```
 
 ### operationId と Go メソッド名

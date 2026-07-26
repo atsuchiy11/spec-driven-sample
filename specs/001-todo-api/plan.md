@@ -77,24 +77,24 @@ specs/001-todo-api/
     └── requirements.md  # spec 品質チェックリスト
 ```
 
-### ソースコード（リポジトリルート）
+### ソースコード（`src/` 配下）
 
-単一プロジェクト（backend のみ）を採用。Go の慣習に沿い `cmd/`（エントリポイント）と `internal/`（非公開実装）を技術レイヤ別に構成する。※ 以下は**次フェーズ（implement）で作成する想定レイアウト**であり、本タスクでは生成しない。設計の詳細（層の責務・依存方向・DI・エラー・PUT 実装）は [architecture.md](./architecture.md)。
+単一プロジェクト（backend のみ）を採用。実装コードは全て `src/` 配下に置き、その中を Go の慣習に沿い `src/cmd/`（エントリポイント）と `src/internal/`（非公開実装）で技術レイヤ別に構成する。※ 以下は**次フェーズ（implement）で作成する想定レイアウト**であり、本タスクでは生成しない。設計の詳細（層の責務・依存方向・DI・エラー・PUT 実装）は [architecture.md](./architecture.md)。
 
 ```text
-cmd/
-└── api/
-    └── main.go                  # 唯一の可動部: 設定読込→DI 配線→ルーティング→起動
-
-internal/
-├── config/config.go             # env を型付き struct へ（起動時一括読込・fail-fast）
-├── domain/                      # entity（todo.go、GORM タグ付・型は import しない）+ repository port（repository.go）
-├── usecase/todo_usecase.go      # TodoUsecase（port 依存）。業務ルール（completed 固定/更新、PUT 全置換）+ 意味的検証
-├── infra/repository/            # GORM 実装（port を満たす。GORM 依存をここに隔離）
-├── handler/                     # 生成 StrictServerInterface を実装。DTO↔domain 変換
-├── api/                         # oapi-codegen 生成物（*.gen.go）+ cfg.yaml + generate.go
-├── middleware/                  # auth.go（Bearer 検証）
-└── apperror/errors.go           # ドメインエラー + problem+json レンダラ（Validation/NotFound/Unauthorized）
+src/
+├── cmd/
+│   └── api/
+│       └── main.go              # 唯一の可動部: 設定読込→DI 配線→ルーティング→起動
+└── internal/
+    ├── config/config.go         # env を型付き struct へ（起動時一括読込・fail-fast）
+    ├── domain/                  # entity（todo.go、GORM タグ付・型は import しない）+ repository port（repository.go）
+    ├── usecase/todo_usecase.go  # TodoUsecase（port 依存）。業務ルール（completed 固定/更新、PUT 全置換）+ 意味的検証
+    ├── infra/repository/        # GORM 実装（port を満たす。GORM 依存をここに隔離）
+    ├── handler/                 # 生成 StrictServerInterface を実装。DTO↔domain 変換
+    ├── api/                     # oapi-codegen 生成物（*.gen.go）+ cfg.yaml + generate.go
+    ├── middleware/              # auth.go（Bearer 検証）
+    └── apperror/errors.go       # ドメインエラー + problem+json レンダラ（Validation/NotFound/Unauthorized）
 
 tests/
 └── integration/                 # httptest + testcontainers（実 PostgreSQL）
@@ -104,7 +104,7 @@ bruno/                           # Bruno .bru（受け入れテスト）
 docker-compose.yml               # PostgreSQL 16
 ```
 
-**構造の決定**: クリーンアーキ寄りの層構成（handler → usecase → repository、port は domain 所有＝依存性逆転）。HTTP 境界は oapi-codegen（strict-server + Gin）生成コードを handler が実装。原則 V の歯止めとして、(1) GORM 依存は `internal/infra/repository` に閉じ込め、port は domain 側が所有、(2) handler へは生成 DTO 経由で GORM 型を漏らさず usecase は生成 DTO 非依存、(3) 汎用リポジトリ・DI コンテナ・Unit of Work・interactor は作らない。エラーは `apperror` の単一レンダラ 1 箇所で RFC 7807 `problem+json` に変換する。
+**構造の決定**: クリーンアーキ寄りの層構成（handler → usecase → repository、port は domain 所有＝依存性逆転）。HTTP 境界は oapi-codegen（strict-server + Gin）生成コードを handler が実装。原則 V の歯止めとして、(1) GORM 依存は `src/internal/infra/repository` に閉じ込め、port は domain 側が所有、(2) handler へは生成 DTO 経由で GORM 型を漏らさず usecase は生成 DTO 非依存、(3) 汎用リポジトリ・DI コンテナ・Unit of Work・interactor は作らない。エラーは `apperror` の単一レンダラ 1 箇所で RFC 7807 `problem+json` に変換する。
 
 ## 複雑さの追跡
 
